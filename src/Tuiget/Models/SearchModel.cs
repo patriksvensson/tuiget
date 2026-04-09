@@ -53,7 +53,7 @@ public sealed class SearchModel : TeaModel
 
         if (_hasFocus)
         {
-            context.SetCursorPosition(new Position(10 + _query.Length, 2));
+            context.SetCursorPosition(new Position(10 + _query.Length, 1));
         }
     }
 }

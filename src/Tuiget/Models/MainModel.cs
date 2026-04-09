@@ -5,7 +5,6 @@ namespace Tuiget;
 public sealed class MainModel : TeaModel
 {
     private readonly Layout _layout;
-    private readonly HeaderModel _headerModel;
     private readonly SearchModel _searchModel;
     private readonly ListModel _listModel;
     private readonly InfoModel _infoModel;
@@ -14,7 +13,6 @@ public sealed class MainModel : TeaModel
 
     public MainModel()
     {
-        _headerModel = new HeaderModel();
         _searchModel = new SearchModel();
         _listModel = new ListModel();
         _infoModel = new InfoModel();
@@ -22,7 +20,6 @@ public sealed class MainModel : TeaModel
 
         _layout = new Layout("root")
             .SplitRows(
-                new Layout("header").Size(1),
                 new Layout("search").Size(3),
                 new Layout("middle")
                     .SplitColumns(
@@ -62,7 +59,6 @@ public sealed class MainModel : TeaModel
 
     public override void Render(RenderContext ctx)
     {
-        ctx.Render(_headerModel, _layout.GetArea(ctx, "header"));
         ctx.Render(_searchModel, _layout.GetArea(ctx, "search"));
         ctx.Render(_listModel, _layout.GetArea(ctx, "list"));
         ctx.Render(_infoModel, _layout.GetArea(ctx, "info"));
