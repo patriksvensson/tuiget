@@ -2,6 +2,8 @@
 
 An experiment to build a NuGet explorer with a terminal user interface.
 
+![Screenshot](res/screenshot.png)
+
 > [!NOTE]  
 > This project is just a sandbox for the Spectre.Tui library, and is not 
 > to be considered a serious project.
