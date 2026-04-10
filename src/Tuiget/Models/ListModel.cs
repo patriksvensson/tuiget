@@ -1,7 +1,21 @@
+using NuGet.Packaging.Core;
 using Spectre.Console;
 using Spectre.Tui;
 
 namespace Tuiget;
+
+public record ListItem(PackageIdentity Identity) : IListWidgetItem
+{
+    public Text CreateText(bool isSelected)
+    {
+        if (isSelected)
+        {
+            return Text.FromMarkup($" [u blue]{Identity.Id}[/] {Identity.Version}");
+        }
+
+        return Text.FromMarkup($" [yellow]{Identity.Id}[/] [gray]{Identity.Version}[/]");
+    }
+}
 
 public sealed class ListModel : TeaModel
 {
@@ -37,6 +51,11 @@ public sealed class ListModel : TeaModel
             _list.WithItems(result.Items);
         }
 
+        if (message is LoadingMetadataMessage loading)
+        {
+            return GetPackageMetadata;
+        }
+
         if (message is KeyMessage key && _hasFocus)
         {
             switch (key.Data.Key)
@@ -48,7 +67,13 @@ public sealed class ListModel : TeaModel
                     _list.MoveUp();
                     break;
                 case ConsoleKey.Enter:
-                    return GetPackageMetadata;
+                    var identity = _list.SelectedItem?.Identity.Id;
+                    if (!string.IsNullOrWhiteSpace(identity))
+                    {
+                        return TeaCommands.Message(
+                            new LoadingMetadataMessage(identity));
+                    }
+                    break;
             }
         }
 

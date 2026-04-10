@@ -48,12 +48,14 @@ public sealed class SearchModel : TeaModel
                 ? new BoxWidget()
                 : new BoxWidget(new Style(Color.Gray)));
 
-        context.SetString(2, 1, "Search:", new Style(Color.Gray));
-        context.SetString(10, 1, _query, _hasFocus ? new Style(Color.Yellow) : new Style(Color.Gray));
+        context.SetString(2, 1, "🔎", new Style(Color.Gray));
+        context.SetString(5, 1, _query, _hasFocus
+            ? new Style(Color.Yellow, decoration: Decoration.Bold)
+            : new Style(Color.Gray, decoration: Decoration.Bold));
 
         if (_hasFocus)
         {
-            context.SetCursorPosition(new Position(10 + _query.Length, 1));
+            context.SetCursorPosition(new Position(5 + _query.Length, 1));
         }
     }
 }

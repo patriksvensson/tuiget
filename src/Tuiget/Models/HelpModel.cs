@@ -22,9 +22,11 @@ public sealed class HelpModel : TeaModel
                 _currentFocus = focus.Focus;
                 break;
             case ShowQueryResultMessage:
+            case PackageMetadataMessage:
                 _showSpinner = false;
                 break;
             case ExecuteQueryMessage:
+            case LoadingMetadataMessage:
                 _showSpinner = true;
                 break;
         }
