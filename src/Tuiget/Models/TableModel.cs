@@ -4,32 +4,21 @@ using Spectre.Tui;
 
 namespace Tuiget;
 
-public record ListItem(PackageIdentity Identity) : IListWidgetItem
-{
-    public Text CreateText(bool isSelected)
-    {
-        if (isSelected)
-        {
-            return Text.FromMarkup($" [u blue]{Identity.Id}[/] {Identity.Version}");
-        }
-
-        return Text.FromMarkup($" [yellow]{Identity.Id}[/] [gray]{Identity.Version}[/]");
-    }
-}
-
-public sealed class ListModel : TeaModel
+public sealed class TableModel : TeaModel
 {
     private bool _hasFocus;
     private string? _query;
-    private Spectre.Tui.ListWidget<ListItem> _list;
+    private TableWidget<TableItem> _table;
     private readonly Debouncer _debouncer;
 
-    public ListModel()
+    public TableModel()
     {
         _debouncer = new Debouncer();
-        _list = new ListWidget<ListItem>()
-            .HighlightSymbol("→ ")
-            .WrapAround();
+        _table = new TableWidget<TableItem>()
+            .AutoAddColumns()
+            .WrapAround()
+            .ShowHeader(false)
+            .SelectedIndex(0);
     }
 
     public override TeaCommand? Update(TeaMessage message)
@@ -37,7 +26,7 @@ public sealed class ListModel : TeaModel
         if (message is FocusMessage focus)
         {
             _hasFocus = focus.Focus == Focus.List;
-            _list.SelectedIndex = focus.Focus == Focus.List ? 0 : null;
+            _table.SelectedIndex = focus.Focus == Focus.List ? 0 : null;
         }
 
         if (message is ExecuteQueryMessage query)
@@ -48,7 +37,7 @@ public sealed class ListModel : TeaModel
 
         if (message is ShowQueryResultMessage result)
         {
-            _list.WithItems(result.Items);
+            _table.Rows(result.Items);
         }
 
         if (message is LoadingMetadataMessage loading)
@@ -61,13 +50,13 @@ public sealed class ListModel : TeaModel
             switch (key.Data.Key)
             {
                 case ConsoleKey.DownArrow:
-                    _list.MoveDown();
+                    _table.MoveDown();
                     break;
                 case ConsoleKey.UpArrow:
-                    _list.MoveUp();
+                    _table.MoveUp();
                     break;
                 case ConsoleKey.Enter:
-                    var identity = _list.SelectedItem?.Identity.Id;
+                    var identity = _table.SelectedItem?.Identity.Id;
                     if (!string.IsNullOrWhiteSpace(identity))
                     {
                         return TeaCommands.Message(
@@ -82,18 +71,34 @@ public sealed class ListModel : TeaModel
 
     public override void Render(RenderContext ctx)
     {
-        ctx.Render(
-            _hasFocus
-                ? new BoxWidget()
-                : new BoxWidget(new Style(Color.Gray)));
+        var box = _hasFocus
+            ? new BoxWidget()
+                .TitlePadding(1)
+                .MarkupTitle("Results")
+            : new BoxWidget(new Style(Color.Gray))
+                .TitlePadding(1)
+                .MarkupTitle("Results");
 
-        if (_list.Items.Count > 0)
+        if (_table.Rows.Count > 0)
         {
-            ctx.Render(_list, ctx.Viewport.Inflate(-1, -1));
+            ctx.Render(
+                box.Inner(
+                    new CompositeWidget(
+                        new ClearWidget(' ', new Style(decoration: Decoration.Bold)),
+                        new PaddingWidget(new Padding(1, 0, 2, 0), _table),
+                        new ScrollbarWidget()
+                            .VerticalRight()
+                            .Position(_table.SelectedIndex ?? 0).Length(_table.Rows.Count)
+                            .ViewportLength(1)
+                            .Style(Color.Gray)
+                            .ThumbStyle(Color.Green))));
         }
         else
         {
-            ctx.SetString(2, 1, "No search results available", new Style(Color.Gray));
+            ctx.Render(
+                box.Inner(
+                    new PaddingWidget(new Padding(1, 1, 0, 0),
+                        Paragraph.FromMarkup("[gray]No search results available[/]"))));
         }
     }
 
@@ -114,13 +119,13 @@ public sealed class ListModel : TeaModel
             return null;
         }
 
-        var items = result.Select(x => new ListItem(x.Identity));
+        var items = result.Select(x => new TableItem(x.Identity));
         return new ShowQueryResultMessage(items.ToList());
     }
 
     private async Task<TeaMessage?> GetPackageMetadata(CancellationToken cancellationToken)
     {
-        var selected = _list.SelectedItem;
+        var selected = _table.SelectedItem;
         if (selected == null)
         {
             return null;

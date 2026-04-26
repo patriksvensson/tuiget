@@ -1,3 +1,3 @@
 namespace Tuiget;
 
-public record ShowQueryResultMessage(List<ListItem> Items) : TeaMessage;
+public record ShowQueryResultMessage(List<TableItem> Items) : TeaMessage;

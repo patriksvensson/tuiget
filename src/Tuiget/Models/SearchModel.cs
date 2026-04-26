@@ -34,8 +34,10 @@ public sealed class SearchModel : TeaModel
             {
                 _query += key.Data.KeyChar;
             }
-
-            return TeaCommands.Message(new ExecuteQueryMessage(_query));
+            else if (key.Data.Key == ConsoleKey.Enter)
+            {
+                return TeaCommands.Message(new ExecuteQueryMessage(_query));
+            }
         }
 
         return null;
@@ -46,16 +48,17 @@ public sealed class SearchModel : TeaModel
         context.Render(
             _hasFocus
                 ? new BoxWidget()
-                : new BoxWidget(new Style(Color.Gray)));
+                    .TitlePadding(1)
+                    .MarkupTitle("Search")
+                : new BoxWidget(new Style(Color.Gray))
+                    .TitlePadding(1)
+                    .MarkupTitle("Search"));
 
-        context.SetString(2, 1, "🔎", new Style(Color.Gray));
-        context.SetString(5, 1, _query, _hasFocus
-            ? new Style(Color.Yellow, decoration: Decoration.Bold)
-            : new Style(Color.Gray, decoration: Decoration.Bold));
+        context.SetString(2, 1, _query, _hasFocus ? new Style(Color.Yellow) : new Style(Color.Gray));
 
         if (_hasFocus)
         {
-            context.SetCursorPosition(new Position(5 + _query.Length, 1));
+            context.SetCursorPosition(new Position(2 + _query.Length, 2));
         }
     }
 }

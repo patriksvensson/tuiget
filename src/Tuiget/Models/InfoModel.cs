@@ -24,23 +24,41 @@ public class InfoModel : TeaModel
 
     public override void Render(RenderContext ctx)
     {
-        ctx.Render(new BoxWidget(new Style(Color.Gray)));
+        ctx.Render(new BoxWidget(new Style(Color.Gray))
+            .TitlePadding(1)
+            .MarkupTitle("Info"));
 
         if (_metadata == null)
         {
-            ctx.Render(new ClearWidget(' ', new Style(Color.Gray)), ctx.Viewport.Inflate(-1, -1));
+            ctx.Render(
+                new ClearWidget(' ', new Style(Color.Gray)), ctx.Viewport.Inflate(-1, -1));
         }
         else
         {
-            ctx.Render(new ClearWidget(' '), ctx.Viewport.Inflate(-1, -1));
+            var inner = ctx.Viewport.Inflate(-1, -1);
+            ctx.Render(new ClearWidget(' '), inner);
 
-            ctx.SetString(2, 1, _metadata.Title, new Style(Color.Yellow));
-            ctx.SetString(2, 3, "Authors:", new Style(Color.Gray));
-            ctx.SetString(2, 4, _metadata.Authors[..Math.Min(ctx.Viewport.Width - 5, _metadata.Authors.Length)]);
-            ctx.SetString(2, 6, "License:", new Style(Color.Gray));
-            ctx.SetString(2, 7, _metadata.LicenseMetadata?.License ?? "Unknown");
-            ctx.SetString(2, 9, "Description:", new Style(Color.Gray));
-            ctx.SetString(2, 10, _metadata.Description[..Math.Min(ctx.Viewport.Width - 5, _metadata.Description.Length)] ?? "None");
+            var title = _metadata.Title.RemoveMarkup();
+            var authors = _metadata.Authors.RemoveMarkup();
+            var license = (_metadata.LicenseMetadata?.License ?? "Unknown").RemoveMarkup();
+            var description = _metadata.Description.RemoveMarkup();
+
+            ctx.Render(
+                new PaddingWidget(
+                    new Padding(1, 0, 1, 0),
+                    Paragraph.FromMarkup(
+                        $"""
+                         [yellow]{title}[/]
+
+                         [gray]Authors:[/]
+                         {authors}
+
+                         [gray]License:[/]
+                         {license}
+
+                         [gray]Description:[/]
+                         {description}
+                         """)), inner);
         }
     }
 }

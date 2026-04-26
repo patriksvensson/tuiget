@@ -8,7 +8,7 @@ public sealed class SpinnerModel : TeaModel
     public int Y { get; set; }
 
     public int Frame { get; set; }
-    public SpinnerType Spinner { get; set; } = SpinnerType.Pulse;
+    public SpinnerKind Spinner { get; set; } = SpinnerKind.Default;
 
     public TickSource Ticks { get; init; } = new();
 
