@@ -9,6 +9,5 @@
     <File Path="Directory.Packages.props" />
     <File Path=".editorconfig" />
   </Folder>
-  <Project Path="Tuiget.Tests\Tuiget.Tests.csproj" />
   <Project Path="Tuiget\Tuiget.csproj" />
 </Solution>

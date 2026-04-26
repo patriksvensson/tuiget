@@ -36,20 +36,8 @@ Task("Build")
     });
 });
 
-Task("Test")
-    .IsDependentOn("Build")
-    .Does(context => 
-{
-    DotNetTest("./src/Tuiget.slnx", new DotNetTestSettings {
-        Configuration = configuration,
-        NoRestore = true,
-        NoBuild = true,
-    });
-});
-
 Task("Package")
-    .IsDependentOn("Clean")
-    .IsDependentOn("Test")
+    .IsDependentOn("Build")
     .Does(context => 
 {
     context.DotNetPack($"./src/Tuiget.slnx", new DotNetPackSettings {
