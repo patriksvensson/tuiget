@@ -1,3 +1,4 @@
+using Spectre.Console;
 using Spectre.Tui;
 
 namespace Tuiget;
@@ -5,6 +6,7 @@ namespace Tuiget;
 public sealed class MainModel : TeaModel
 {
     private readonly Layout _layout;
+    private readonly ShimmerTextModel _titleModel;
     private readonly SearchModel _searchModel;
     private readonly TableModel _tableModel;
     private readonly InfoModel _infoModel;
@@ -13,6 +15,13 @@ public sealed class MainModel : TeaModel
 
     public MainModel()
     {
+        _titleModel = new ShimmerTextModel
+        {
+            Text = "NuGet TUI",
+            Alignment = Justify.Center,
+            Decoration = Decoration.Bold,
+        };
+
         _searchModel = new SearchModel();
         _tableModel = new TableModel();
         _infoModel = new InfoModel();
@@ -31,7 +40,7 @@ public sealed class MainModel : TeaModel
 
     public override TeaCommand? Init()
     {
-        return _helpModel.Init();
+        return TeaCommands.Sequence(_titleModel.Init(), _helpModel.Init());
     }
 
     public override TeaCommand? Update(TeaMessage message)
@@ -54,17 +63,13 @@ public sealed class MainModel : TeaModel
                     _currentFocus = focus.Focus;
                 }
 
-                return message.Forward(_searchModel, _tableModel, _infoModel, _helpModel);
+                return message.Forward(_titleModel, _searchModel, _tableModel, _infoModel, _helpModel);
         }
     }
 
     public override void Render(RenderContext ctx)
     {
-        ctx.Render(
-            Paragraph.FromMarkup("[blue]NuGet[/] [yellow]TUI[/]")
-                .Centered(),
-            _layout.GetArea(ctx, "top"));
-
+        ctx.Render(_titleModel, _layout.GetArea(ctx, "top"));
         ctx.Render(_searchModel, _layout.GetArea(ctx, "search"));
         ctx.Render(_tableModel, _layout.GetArea(ctx, "list"));
         ctx.Render(_infoModel, _layout.GetArea(ctx, "info"));
