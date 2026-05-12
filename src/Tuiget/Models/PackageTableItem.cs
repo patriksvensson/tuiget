@@ -1,10 +1,8 @@
 using NuGet.Packaging.Core;
-using Spectre.Tui;
 
 namespace Tuiget;
 
-public record TableItem(PackageIdentity Identity)
-    : ITableRow, ITableColumnDefinition
+public record PackageTableItem(PackageIdentity Identity) : ITableRow, ITableColumnDefinition
 {
     public Text[] CreateCells(bool isSelected)
     {
@@ -31,7 +29,7 @@ public record TableItem(PackageIdentity Identity)
         return
         [
             new TableColumn("Package").StarWidth(1),
-            new TableColumn("Version").FixedWidth(7).RightAligned(),
+            new TableColumn("Version").FixedWidth(15).RightAligned(),
         ];
     }
 }

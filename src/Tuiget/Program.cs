@@ -1,5 +1,4 @@
 using Tuiget;
 
-await TeaApplication.RunAsync(
-    new MainModel(),
-    CancellationToken.None);
+await Application.Create()
+    .RunAsync(new MainScreen());

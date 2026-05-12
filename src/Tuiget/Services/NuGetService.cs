@@ -23,13 +23,15 @@ public static class NuGetService
             SupportedFrameworks = [FrameworkConstants.CommonFrameworks.Net50.Framework],
         };
 
-        return (await resource.SearchAsync(
+        var result = await resource.SearchAsync(
             query,
             searchFilter,
             skip: 0,
             take: 100,
             NullLogger.Instance,
-            CancellationToken.None)).ToList();
+            CancellationToken.None);
+
+        return result.ToList();
     }
 
     public static async Task<IPackageSearchMetadata?> GetPackageInfo(PackageIdentity identity)
@@ -37,5 +39,13 @@ public static class NuGetService
         var repository = Repository.Factory.GetCoreV3("https://api.nuget.org/v3/index.json");
         var resource = await repository.GetResourceAsync<PackageMetadataResource>();
         return await resource.GetMetadataAsync(identity, new NullSourceCacheContext(), new NullLogger(), CancellationToken.None);
+    }
+
+    public static async Task<List<VersionInfo>> GetPackageVersions(PackageIdentity identity)
+    {
+        var repository = Repository.Factory.GetCoreV3("https://api.nuget.org/v3/index.json");
+        var resource = await repository.GetResourceAsync<PackageMetadataResource>();
+        var metadata = await resource.GetMetadataAsync(identity, new NullSourceCacheContext(), new NullLogger(), CancellationToken.None);
+        return (await metadata.GetVersionsAsync()).ToList();
     }
 }
